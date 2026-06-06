@@ -288,7 +288,7 @@
       const email = document.querySelector("#signupEmail").value
       const password = document.querySelector("#signupPassword").value
 
-      const response = await fetch("/", {
+      const response = await fetch("/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password })
