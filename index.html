@@ -310,7 +310,7 @@
       const email = document.querySelector("#loginEmail").value
       const password = document.querySelector("#loginPassword").value
 
-      const response = await fetch("http://localhost:3000/login", {
+      const response = await fetch("/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password })
@@ -355,7 +355,7 @@
 
     // Load notes
     async function loadNotes() {
-      const response = await fetch("http://localhost:3000/notes", {
+      const response = await fetch("/notes", {
         headers: { "Authorization": token }
       })
       const notes = await response.json()
@@ -384,7 +384,7 @@
 
     // Load bin
     async function loadBin() {
-      const response = await fetch("http://localhost:3000/notes/deleted", {
+      const response = await fetch("/notes/deleted", {
         headers: { "Authorization": token }
       })
       const notes = await response.json()
@@ -418,7 +418,7 @@
       const text = input.value
       if (text === "") return
 
-      await fetch("http://localhost:3000/notes", {
+      await fetch("/notes", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -433,7 +433,7 @@
 
     // Delete note
     async function deleteNote(id) {
-      await fetch("http://localhost:3000/notes/" + id, {
+      await fetch("/notes/" + id, {
         method: "DELETE",
         headers: { "Authorization": token }
       })
@@ -442,7 +442,7 @@
 
     // Restore note
     async function restoreNote(id) {
-      await fetch("http://localhost:3000/notes/" + id + "/restore", {
+      await fetch("/notes/" + id + "/restore", {
         method: "PUT",
         headers: { "Authorization": token }
       })
@@ -451,7 +451,7 @@
 
     // Permanent delete
     async function permanentDelete(id) {
-      await fetch("http://localhost:3000/notes/" + id + "/permanent", {
+      await fetch("/notes/" + id + "/permanent", {
         method: "DELETE",
         headers: { "Authorization": token }
       })
