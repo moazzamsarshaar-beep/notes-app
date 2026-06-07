@@ -7,7 +7,7 @@ const app = express()
 app.use(express.json())
 app.use(express.static("."))
 
-const db = new Database("notes.db")
+const db = new Database(process.env.DB_PATH || "notes.db")
 const SECRET = "mynoteappsecret123"
 
 // Create tables
