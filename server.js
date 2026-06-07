@@ -132,6 +132,10 @@ app.delete("/notes/:id/permanent", authenticate, function(req, res) {
   res.send({ message: "Note permanently deleted!" })
 })
 
-app.listen(3000, function() {
-  console.log("Server running on http://localhost:3000")
+// EDIT a note
+app.put("/notes/:id", authenticate, function(req, res) {
+  const id = req.params.id
+  const text = req.body.text
+  db.prepare("UPDATE notes SET text = ? WHERE id = ? AND user_id = ?").run(text, id, req.userId)
+  res.send({ message: "Note updated!" })
 })

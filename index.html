@@ -85,6 +85,42 @@
       font-weight: bold;
     }
 
+
+.edit-btn {
+  background-color: transparent;
+  color: purple;
+  padding: 8px 14px;
+  border: 2px solid purple;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.edit-btn:hover {
+  background-color: purple;
+  color: white;
+}
+
+.edit-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 2px solid purple;
+  border-radius: 6px;
+  font-size: 16px;
+  outline: none;
+}
+
+.save-edit-btn {
+  background-color: purple;
+  color: white;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
     .error {
       color: red;
       font-size: 14px;
@@ -407,17 +443,46 @@ function renderNotes(notes) {
 
   notes.forEach(function(note) {
     notesList.innerHTML += `
-      <div class="note">
+      <div class="note" id="note-${note.id}">
         <div class="note-content">
-          <p>${note.text}</p>
+          <p id="text-${note.id}">${note.text}</p>
           <span>${note.created_at}</span>
         </div>
         <div class="actions">
+          <button class="edit-btn" onclick="editNote(${note.id}, '${note.text.replace(/'/g, "\\'")}')">✏️ Edit</button>
           <button class="delete-btn" onclick="deleteNote(${note.id})">🗑️ Delete</button>
         </div>
       </div>
     `
   })
+}
+
+function editNote(id, currentText) {
+  const noteEl = document.querySelector("#note-" + id)
+  noteEl.innerHTML = `
+    <input class="edit-input" id="editInput-${id}" value="${currentText}" />
+    <div class="actions">
+      <button class="save-edit-btn" onclick="saveEdit(${id})">💾 Save</button>
+    </div>
+  `
+  // Focus the input
+  document.querySelector("#editInput-" + id).focus()
+}
+
+async function saveEdit(id) {
+  const newText = document.querySelector("#editInput-" + id).value
+  if (newText === "") return
+
+  await fetch("/notes/" + id, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": token
+    },
+    body: JSON.stringify({ text: newText })
+  })
+
+  loadNotes()
 }
 
 function searchNotes() {
