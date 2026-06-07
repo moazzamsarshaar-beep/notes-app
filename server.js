@@ -118,11 +118,19 @@ app.delete("/notes/:id", authenticate, function(req, res) {
   res.send({ message: "Note moved to recycle bin!" })
 })
 
-// RESTORE — protected
+// RESTORE — must come BEFORE the edit route
 app.put("/notes/:id/restore", authenticate, function(req, res) {
   const id = req.params.id
   db.prepare("UPDATE notes SET is_deleted = 0 WHERE id = ? AND user_id = ?").run(id, req.userId)
   res.send({ message: "Note restored!" })
+})
+
+// EDIT — comes after restore
+app.put("/notes/:id", authenticate, function(req, res) {
+  const id = req.params.id
+  const text = req.body.text
+  db.prepare("UPDATE notes SET text = ? WHERE id = ? AND user_id = ?").run(text, id, req.userId)
+  res.send({ message: "Note updated!" })
 })
 
 // PERMANENT delete — protected
@@ -130,12 +138,4 @@ app.delete("/notes/:id/permanent", authenticate, function(req, res) {
   const id = req.params.id
   db.prepare("DELETE FROM notes WHERE id = ? AND user_id = ?").run(id, req.userId)
   res.send({ message: "Note permanently deleted!" })
-})
-
-// EDIT a note
-app.put("/notes/:id", authenticate, function(req, res) {
-  const id = req.params.id
-  const text = req.body.text
-  db.prepare("UPDATE notes SET text = ? WHERE id = ? AND user_id = ?").run(text, id, req.userId)
-  res.send({ message: "Note updated!" })
 })
