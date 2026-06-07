@@ -139,3 +139,7 @@ app.delete("/notes/:id/permanent", authenticate, function(req, res) {
   db.prepare("DELETE FROM notes WHERE id = ? AND user_id = ?").run(id, req.userId)
   res.send({ message: "Note permanently deleted!" })
 })
+
+app.listen(3000, function() {
+  console.log("Server running on http://localhost:3000")
+})
