@@ -13,6 +13,21 @@
       padding: 40px 20px;
     }
 
+#searchInput {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  margin-bottom: 20px;
+  outline: none;
+  transition: border 0.2s;
+}
+
+#searchInput:focus {
+  border-color: purple;
+}
+
     .container {
       width: 100%;
       max-width: 600px;
@@ -261,12 +276,13 @@
       </div>
 
       <div id="activeSection">
-        <div class="input-box">
-          <input id="noteInput" type="text" placeholder="Write a note..." />
-          <button class="save-btn" onclick="saveNote()">Save</button>
-        </div>
-        <div id="notesList"></div>
-      </div>
+  <div class="input-box">
+    <input id="noteInput" type="text" placeholder="Write a note..." />
+    <button class="save-btn" onclick="saveNote()">Save</button>
+  </div>
+  <input id="searchInput" type="text" placeholder="🔍 Search notes..." oninput="searchNotes()" />
+  <div id="notesList"></div>
+</div>
 
       <div id="binSection" style="display:none">
         <div id="binList"></div>
@@ -278,6 +294,7 @@
 
   <script>
     let token = localStorage.getItem("token")
+    let allNotes = []
 
     if (token) {
       showApp()
@@ -366,32 +383,44 @@
     }
 
     async function loadNotes() {
-      const response = await fetch("/notes", {
-        headers: { "Authorization": token }
-      })
-      const notes = await response.json()
-      const notesList = document.querySelector("#notesList")
-      notesList.innerHTML = ""
+  const response = await fetch("/notes", {
+    headers: { "Authorization": token }
+  })
+  allNotes = await response.json()
+  renderNotes(allNotes)
+}
 
-      if (notes.length === 0) {
-        notesList.innerHTML = "<p class='empty'>No notes yet. Write one above!</p>"
-        return
-      }
+function renderNotes(notes) {
+  const notesList = document.querySelector("#notesList")
+  notesList.innerHTML = ""
 
-      notes.forEach(function(note) {
-        notesList.innerHTML += `
-          <div class="note">
-            <div class="note-content">
-              <p>${note.text}</p>
-              <span>${note.created_at}</span>
-            </div>
-            <div class="actions">
-              <button class="delete-btn" onclick="deleteNote(${note.id})">🗑️ Delete</button>
-            </div>
-          </div>
-        `
-      })
-    }
+  if (notes.length === 0) {
+    notesList.innerHTML = "<p class='empty'>No notes found!</p>"
+    return
+  }
+
+  notes.forEach(function(note) {
+    notesList.innerHTML += `
+      <div class="note">
+        <div class="note-content">
+          <p>${note.text}</p>
+          <span>${note.created_at}</span>
+        </div>
+        <div class="actions">
+          <button class="delete-btn" onclick="deleteNote(${note.id})">🗑️ Delete</button>
+        </div>
+      </div>
+    `
+  })
+}
+
+function searchNotes() {
+  const query = document.querySelector("#searchInput").value.toLowerCase()
+  const filtered = allNotes.filter(function(note) {
+    return note.text.toLowerCase().includes(query)
+  })
+  renderNotes(filtered)
+}
 
     async function loadBin() {
       const response = await fetch("/notes/deleted", {
@@ -414,8 +443,8 @@
               <span>${note.created_at}</span>
             </div>
             <div class="actions">
-              <button class="restore-btn" onclick="restoreNote(${note.id})">♻️ Restore</button>
-              <button class="permanent-btn" onclick="permanentDelete(${note.id})">❌ Delete Forever</button>
+              <button class="restore-btn" onclick="restoreNote(${JSON.stringify(note.id)})">♻️ Restore</button>
+              <button class="permanent-btn" onclick="permanentDelete(${JSON.stringify(note.id)})">❌ Delete Forever</button>
             </div>
           </div>
         `
