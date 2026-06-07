@@ -133,27 +133,39 @@
       align-items: center;
     }
 
-    .note p { font-size: 16px; }
+    .note-content {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .note p {
+      font-size: 16px;
+      color: #333;
+      margin: 0;
+    }
 
     .note span {
-  font-size: 12px;
-  color: #999;
-  margin-top: 8px;
-  display: block;
-  padding-top: 6px;
-  border-top: 1px solid #f0f0f0;
-}
+      font-size: 12px;
+      color: #666;
+    }
 
     .actions { display: flex; gap: 8px; }
 
     .delete-btn {
-      background-color: red;
-      color: white;
+      background-color: transparent;
+      color: #e53e3e;
       padding: 8px 14px;
-      border: none;
+      border: 2px solid #e53e3e;
       border-radius: 6px;
       cursor: pointer;
       font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .delete-btn:hover {
+      background-color: #e53e3e;
+      color: white;
     }
 
     .restore-btn {
@@ -262,12 +274,10 @@
   <script>
     let token = localStorage.getItem("token")
 
-    // Check if already logged in
     if (token) {
       showApp()
     }
 
-    // Show/hide forms
     function showSignup() {
       document.querySelector("#loginForm").style.display = "none"
       document.querySelector("#signupForm").style.display = "block"
@@ -278,14 +288,12 @@
       document.querySelector("#loginForm").style.display = "block"
     }
 
-    // Show main app
     function showApp() {
       document.querySelector("#authSection").style.display = "none"
       document.querySelector("#notesSection").style.display = "block"
       loadNotes()
     }
 
-    // Signup
     async function signup() {
       const email = document.querySelector("#signupEmail").value
       const password = document.querySelector("#signupPassword").value
@@ -307,7 +315,6 @@
       showLogin()
     }
 
-    // Login
     async function login() {
       const email = document.querySelector("#loginEmail").value
       const password = document.querySelector("#loginPassword").value
@@ -330,7 +337,6 @@
       showApp()
     }
 
-    // Logout
     function logout() {
       localStorage.removeItem("token")
       token = null
@@ -338,7 +344,6 @@
       document.querySelector("#notesSection").style.display = "none"
     }
 
-    // Switch tabs
     function switchTab(tab, event) {
       const tabs = document.querySelectorAll(".tab")
       tabs.forEach(function(t) { t.classList.remove("active") })
@@ -355,7 +360,6 @@
       }
     }
 
-    // Load notes
     async function loadNotes() {
       const response = await fetch("/notes", {
         headers: { "Authorization": token }
@@ -372,7 +376,7 @@
       notes.forEach(function(note) {
         notesList.innerHTML += `
           <div class="note">
-            <div>
+            <div class="note-content">
               <p>${note.text}</p>
               <span>${note.created_at}</span>
             </div>
@@ -384,7 +388,6 @@
       })
     }
 
-    // Load bin
     async function loadBin() {
       const response = await fetch("/notes/deleted", {
         headers: { "Authorization": token }
@@ -401,7 +404,7 @@
       notes.forEach(function(note) {
         binList.innerHTML += `
           <div class="note">
-            <div>
+            <div class="note-content">
               <p>${note.text}</p>
               <span>${note.created_at}</span>
             </div>
@@ -414,7 +417,6 @@
       })
     }
 
-    // Save note
     async function saveNote() {
       const input = document.querySelector("#noteInput")
       const text = input.value
@@ -433,7 +435,6 @@
       loadNotes()
     }
 
-    // Delete note
     async function deleteNote(id) {
       await fetch("/notes/" + id, {
         method: "DELETE",
@@ -442,7 +443,6 @@
       loadNotes()
     }
 
-    // Restore note
     async function restoreNote(id) {
       await fetch("/notes/" + id + "/restore", {
         method: "PUT",
@@ -451,7 +451,6 @@
       loadBin()
     }
 
-    // Permanent delete
     async function permanentDelete(id) {
       await fetch("/notes/" + id + "/permanent", {
         method: "DELETE",
